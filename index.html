@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio Vibras Positivas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-white shadow-md p-4 text-center">
+        <img src="vp.PNG" alt="Logo Vibras Positivas" class="mx-auto h-24 mb-2">
+        <h1 class="text-2xl font-bold text-gray-800">Portafolio Vibras Positivas</h1>
+        <p class="text-sm text-gray-500" id="fecha-hora"></p>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-6">
+        
+        <section class="bg-white p-6 rounded-xl shadow-lg mb-8 border-t-4 border-blue-500">
+            <h2 class="text-xl font-semibold mb-4 text-blue-700"><i class="fas fa-user-edit mr-2"></i>Datos del Interesado</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="nombre" placeholder="Nombre Completo" class="border p-2 rounded w-full">
+                <input type="text" id="direccion" placeholder="Dirección" class="border p-2 rounded w-full">
+                <input type="tel" id="celular" placeholder="Celular" class="border p-2 rounded w-full">
+                <button onclick="obtenerGPS()" class="bg-green-600 text-white p-2 rounded hover:bg-green-700 transition">
+                    <i class="fas fa-map-marker-alt"></i> Activar GPS
+                </button>
+            </div>
+            <textarea id="observaciones" rows="3" placeholder="¿Qué servicio te interesa consultar?" class="border p-2 rounded w-full mt-4"></textarea>
+            <p id="status-gps" class="text-xs text-gray-500 mt-1"></p>
+        </section>
+
+        <h2 class="text-center text-2xl font-bold mb-6">Nuestros Servicios</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="bg-emerald-500 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition">
+                <h3 class="text-xl font-bold mb-2">Apps Administrativas</h3>
+                <p class="text-sm mb-4">Gestión de inventarios, ventas y procesos internos.</p>
+                <button onclick="seleccionarServicio('Apps Administrativas')" class="bg-white text-emerald-600 px-4 py-2 rounded-full font-bold">Consultar</button>
+            </div>
+
+            <div class="bg-indigo-500 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition">
+                <h3 class="text-xl font-bold mb-2">Tarjetas Digitales</h3>
+                <p class="text-sm mb-4">Tu presentación profesional en un link o QR.</p>
+                <button onclick="seleccionarServicio('Tarjetas Digitales')" class="bg-white text-indigo-600 px-4 py-2 rounded-full font-bold">Consultar</button>
+            </div>
+
+            <div class="bg-orange-500 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition">
+                <h3 class="text-xl font-bold mb-2">Páginas Web</h3>
+                <p class="text-sm mb-4">Landing pages y sitios web corporativos.</p>
+                <button onclick="seleccionarServicio('Páginas Web')" class="bg-white text-orange-600 px-4 py-2 rounded-full font-bold">Consultar</button>
+            </div>
+
+            <div class="bg-rose-500 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition">
+                <h3 class="text-xl font-bold mb-2">Jeanles & Música</h3>
+                <p class="text-sm mb-4">Contenido interactivo y audio branding.</p>
+                <button onclick="seleccionarServicio('Jeanles y Música')" class="bg-white text-rose-600 px-4 py-2 rounded-full font-bold">Consultar</button>
+            </div>
+
+        </div>
+
+        <div class="mt-10 flex flex-col gap-4">
+            <button onclick="enviarWhatsApp()" class="bg-green-500 text-white text-lg py-3 rounded-lg shadow-xl hover:bg-green-600 font-bold">
+                <i class="fab fa-whatsapp mr-2"></i>Enviar Consulta por WhatsApp
+            </button>
+            <button onclick="exportarExcel()" class="bg-gray-800 text-white py-2 rounded-lg opacity-80 hover:opacity-100">
+                <i class="fas fa-file-excel mr-2"></i>Descargar Registro Excel
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="mt-10 p-6 bg-gray-200 text-center text-sm text-gray-700">
+        <p><strong>Contacto:</strong> Caucasia, Antioquia | Carrera 21 B No 13 A 64 Barrio Colinas del Portal</p>
+        <p class="mt-2 text-blue-800 font-semibold italic">App desarrollada por Vibras Positivas - Derecho de autor (3117700431)</p>
+    </footer>
+
+    <script>
+        let gpsData = "No proporcionado";
+        let servicioSeleccionado = "";
+
+        // Reloj en tiempo real Colombia
+        function actualizarReloj() {
+            const ahora = new Date();
+            const opciones = { timeZone: 'America/Bogota', hour12: true, dateStyle: 'long', timeStyle: 'medium' };
+            document.getElementById('fecha-hora').innerText = ahora.toLocaleString('es-CO', opciones);
+        }
+        setInterval(actualizarReloj, 1000);
+
+        // LocalStorage: Cargar datos al iniciar
+        window.onload = () => {
+            document.getElementById('nombre').value = localStorage.getItem('vp_nombre') || '';
+            document.getElementById('direccion').value = localStorage.getItem('vp_direccion') || '';
+            document.getElementById('celular').value = localStorage.getItem('vp_celular') || '';
+        };
+
+        // GPS
+        function obtenerGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    gpsData = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    document.getElementById('status-gps').innerText = "📍 GPS Capturado correctamente";
+                });
+            }
+        }
+
+        function seleccionarServicio(nombre) {
+            servicioSeleccionado = nombre;
+            alert("Has seleccionado: " + nombre + ". Ahora completa tus datos y presiona enviar.");
+        }
+
+        function enviarWhatsApp() {
+            const nombre = document.getElementById('nombre').value;
+            const direccion = document.getElementById('direccion').value;
+            const celular = document.getElementById('celular').value;
+            const obs = document.getElementById('observaciones').value;
+            const fecha = document.getElementById('fecha-hora').innerText;
+
+            // Guardar en LocalStorage
+            localStorage.setItem('vp_nombre', nombre);
+            localStorage.setItem('vp_direccion', direccion);
+            localStorage.setItem('vp_celular', celular);
+
+            const mensaje = `*CONSULTA PORTAFOLIO VP*%0A` +
+                            `*Fecha:* ${fecha}%0A` +
+                            `*Cliente:* ${nombre}%0A` +
+                            `*Celular:* ${celular}%0A` +
+                            `*Dirección:* ${direccion}%0A` +
+                            `*Servicio:* ${servicioSeleccionado}%0A` +
+                            `*Observaciones:* ${obs}%0A` +
+                            `*Ubicación GPS:* ${gpsData}`;
+
+            window.open(`https://wa.me/573117700431?text=${mensaje}`, '_blank');
+        }
+
+        function exportarExcel() {
+            const nombre = document.getElementById('nombre').value;
+            const celular = document.getElementById('celular').value;
+            const servicio = servicioSeleccionado;
+            const fecha = new Date().toLocaleDateString();
+
+            const rows = [
+                ["Fecha", "Nombre", "Celular", "Servicio"],
+                [fecha, nombre, celular, servicio]
+            ];
+
+            let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "registro_vibras_positivas.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+    </script>
+</body>
+</html>
